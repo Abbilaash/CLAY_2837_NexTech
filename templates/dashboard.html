@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <title>Classroom Booking Dashboard</title>
-    
+
 </head>
 <style>
     body {
@@ -62,175 +63,155 @@
     .booked:hover {
         background-color: #c0392b;
     }
+
     .modal {
-    display: none;
-    position: fixed;
-    z-index: 1;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgb(0,0,0);
-    background-color: rgba(0,0,0,0.4);
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgb(0, 0, 0);
+        background-color: rgba(0, 0, 0, 0.4);
     }
 
     .modal-content {
-    background-color: #fefefe;
-    margin: 15% auto;
-    padding: 20px;
-    border: 1px solid #888;
-    width: 80%;
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
     }
-    label{
-      color: black;
+
+    label {
+        color: black;
     }
 
     .close {
-    color: #aaa;
-    float: right;
-    font-size: 28px;
-    font-weight: bold;
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
     }
 
     .close:hover,
     .close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
     }
+
     .classroom.booked {
-        background-color: #e74c3c; /* Change to red color */
-        color: #fff; /* Change text color to white */
+        background-color: #e74c3c;
+        /* Change to red color */
+        color: #fff;
+        /* Change text color to white */
     }
-
-
 </style>
+
 <body>
 
-<h2>Classroom Booking Dashboard</h2>
+    <h2>Classroom Booking Dashboard</h2>
 
-<div class="block">
-    <!-- Loop through 5 floors -->
-    {% for floor in range(1, 6) %}
-    <div class="floor">
-        <h3>Block A - Floor {{ floor }}</h3>
-        <!-- Loop through 10 rooms per floor -->
-        {% for room in range(1, 11) %}
-        <div class="classroom available">Room {{ floor * 100 + room }}</div>
+    <div class="block">
+        <!-- Loop through 5 floors -->
+        {% for floor in range(1, 6) %}
+        <div class="floor">
+            <h3>Block G - Floor {{ floor }}</h3>
+            <!-- Loop through 10 rooms per floor -->
+            {% for room in range(1, 11) %}
+            <div class="classroom available" onclick="openModal('{{ floor * 100 + room }}')">Room {{ floor * 100 + room}}</div>
+            {% endfor %}
+        </div>
         {% endfor %}
     </div>
-    {% endfor %}
-</div>
-<div id="myModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <form id="bookingForm">
-        <label for="staffName">Staff Name:</label>
-        <input type="text" id="staffName" name="staffName" required><br>
-  
-        <label for="deptName">Department:</label>
-        <input type="text" id="deptName" name="deptName" required><br>
-  
-        <label for="startTime">Start Time:</label>
-        <input type="time" id="startTime" name="startTime" required><br>
-  
-        <label for="endTime">End Time:</label>
-        <input type="time" id="endTime" name="endTime" required><br>
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <form id="bookingForm" method="post">
+                <label for="staffName">Staff Name:</label>
+                <input type="text" id="staffName" name="staffName" required><br>
 
-        <input type="hidden" id="roomNumber" name="roomNumber">
-  
-        <button type="submit">Book</button>
-      </form>
+                <label for="deptName">Department:</label>
+                <input type="text" id="deptName" name="deptName" required><br>
+
+                <label for="startTime">Start Time:</label>
+                <input type="time" id="startTime" name="startTime" required><br>
+
+                <label for="endTime">End Time:</label>
+                <input type="time" id="endTime" name="endTime" required><br>
+
+                <input type="hidden" id="roomNumber" name="roomNumber">
+
+                <button type="submit">Book</button>
+            </form>
+        </div>
     </div>
-</div>
 
-<script>
+    <script>
+        // Get the modal
+        var modal = document.getElementById("myModal");
 
-// Get the modal
-var modal = document.getElementById("myModal");
+        // Get the button that opens the modal
+        var rooms = document.getElementsByClassName("classroom");
 
-// Get the button that opens the modal
-var rooms = document.getElementsByClassName("classroom");
+        // Loop through all rooms and attach click event listener
+        Array.from(rooms).forEach(function (room) {
+            room.addEventListener('click', function () {
+                modal.style.display = "block";
+                // Get the room number from the clicked room
+                var roomNumber = room.textContent.trim().replace('Room ', '');
+                // Set the room number in the form field
+                document.getElementById('roomNumber').value = roomNumber;
+            });
+        });
 
-// Fetch booked rooms data from the server
-fetch('/get_booked_rooms')
-  .then(response => response.json())
-  .then(data => {
-    const bookedRooms = data.booked_rooms;
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
 
-    // Loop through all rooms and update their styling based on booking status
-    Array.from(rooms).forEach(function(room) {
-      // Get the room number from the element text content
-      var roomNumber = parseInt(room.textContent.trim().replace('Room ', ''));
-      
-      // Check if the room number is in the list of booked rooms
-      if (bookedRooms.includes(roomNumber)) {
-        room.classList.add('booked'); // Add 'booked' class for booked rooms
-      }
-    });
-  })
-  .catch(error => {
-    console.error('Error:', error);
-  });
-
-
-
-// Loop through all rooms and attach click event listener
-Array.from(rooms).forEach(function(room) {
-    room.addEventListener('click', function() {
-        modal.style.display = "block";
-        // Get the room number from the clicked room
-        var roomNumber = room.textContent.trim().replace('Room ', '');
-        // Set the room number in the form field
-        document.getElementById('roomNumber').value = roomNumber;
-    });
-});
-
-// Get the <span> element that closes the modal
-var span = document.getElementsByClassName("close")[0];
-
-// When the user clicks on <span> (x), close the modal
-span.onclick = function() {
-    modal.style.display = "none";
-}
-
-// When the user clicks anywhere outside of the modal, close it
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
-
-// Handle form submission
-document.getElementById("bookingForm").addEventListener('submit', function(event) {
-    event.preventDefault();
-    var formData = new FormData(this);
-    fetch('/book_room', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Close the modal
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
             modal.style.display = "none";
-            // Change color of booked room
-            var bookedRoom = document.querySelector('.classroom.available');
-            if (bookedRoom) {
-                bookedRoom.classList.remove('available');
-                bookedRoom.classList.add('booked');
-            }
-        } else {
-            alert('Failed to book room.');
         }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-});
 
+        // When the user clicks anywhere outside of the modal, close it
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
 
-</script>
+        // Handle form submission
+        document.getElementById("bookingForm").addEventListener('submit', function (event) {
+            event.preventDefault();
+            var formData = new FormData(this);
+            fetch('/book_room', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Close the modal
+                        modal.style.display = "none";
+                        // Change color of booked room
+                        var bookedRoom = document.querySelector('.classroom.available');
+                        if (bookedRoom) {
+                            bookedRoom.classList.remove('available');
+                            bookedRoom.classList.add('booked');
+                        }
+                    } else {
+                        alert('Failed to book room.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        });
+
+    </script>
 </body>
+
 </html>

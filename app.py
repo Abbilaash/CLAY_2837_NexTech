@@ -30,10 +30,11 @@ def dashboard():
             bookings = cursor.fetchall()
             cursor.close()
             connection.close()
-            return render_template('dashboard.html', date=date, block=block, bookings=bookings)
+            booked_rooms = [101, 103, 105]
+            return render_template('dashboard.html', date=date, bookings=get_booked_rooms())
         except mysql.connector.Error as error:
             return str(error)
-    return render_template('dashboard.html', date=None, block=None, bookings=None)
+    return render_template('dashboard.html', date=None, bookings=None)
 
 @app.route('/submit_login', methods=['POST'])
 def submit_login():
@@ -77,15 +78,18 @@ def book_room():
 @app.route('/get_booked_rooms')
 def get_booked_rooms():
     try:
-        connection = mysql.connector.connect(**mysql_config)
+        connection = mysql.connector.connect(host="localhost",user="root",password="",database="smart-campus")
         cursor = connection.cursor()
-        cursor.execute("SELECT room_number FROM bookings")  # Adjust your SQL query as needed
-        booked_rooms = [row[0] for row in cursor.fetchall()]
+        cursor.execute("SELECT room_name FROM classrooms")  # Adjust your SQL query as needed
+        booked_rooms = []
+        for i in cursor.fetchall():
+            booked_rooms.append(int(i[0]))
         cursor.close()
         connection.close()
-        return jsonify({'booked_rooms': booked_rooms})
+        print(booked_rooms)
+        return booked_rooms
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return []
 
 
 if __name__ == '__main__':
