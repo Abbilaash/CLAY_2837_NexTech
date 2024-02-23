@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hourly Booking</title>
+</head>
+<body>
+    <h1>Hourly Booking</h1>
+    <form action="/hour" method="post">
+        <label for="staff_name">Staff Name:</label>
+        <input type="text" id="staff_name" name="staff_name" required><br><br>
+
+        <label for="representative_name">Representative Name:</label>
+        <input type="text" id="representative_name" name="representative_name" required><br><br>
+
+        <label for="date">Date:</label>
+        <input type="date" id="date" name="date" required><br><br>
+
+        <label for="start_time">From Time:</label>
+        <input type="time" id="start_time" name="start_time" required><br><br>
+
+        <label for="end_time">End Time:</label>
+        <input type="time" id="end_time" name="end_time" required><br><br>
+
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>
